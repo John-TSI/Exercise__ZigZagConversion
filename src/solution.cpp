@@ -5,23 +5,18 @@
 
 std::string Solution::convert(const std::string& s, int numRows)
 {
-    //int numCols = s.length()/numRows + s.length()%numRows; // INCORRECT
-
-    int numCols{0}, charCount = s.length();
+    int numCols{0}, charCount = s.length(), spaceCount{0};
+    // count the number of columns required
     while(charCount)
     {
         if(charCount >= numRows){ charCount -= numRows; ++numCols; }
-        if(charCount >= numRows-2)
+        for(int i{0}; i<numRows-2; ++i)
         {
-            for(int i{0}; i<numRows-2; ++i)
-            {
-                --charCount; ++numCols;
-            }  
-        }
-        if(charCount <= numRows){ charCount = 0; ++numCols; }
+            if(charCount){ --charCount; ++numCols; }
+        }  
+        if(0 < charCount && charCount <= numRows){ charCount = 0; ++numCols; }
     }
-
-    std::vector<std::vector<char>> vec(numCols);
+    std::vector<std::vector<char>> vec(numRows, std::vector<char>(numCols));
 
     bool insertDiagonally{false};
     for(int col{0}; col<numCols; ++col)
@@ -34,15 +29,29 @@ std::string Solution::convert(const std::string& s, int numRows)
 
             if(insertDiagonally)
             {
-                vec[row][col] = (row != numRows-1 && vec[row+1][col-1] != ' ')
-                    ?  s[col*row + row]
-                    : ' ';
-                if(row == 0 && vec[row+1][col-1] != ' '){ insertDiagonally = false; }
+                if(row == 0 && vec[row][col-1] == ' ' && vec[row+1][col-1] != ' ')
+                { 
+                    vec[row][col] = s[col*row + row - spaceCount]; // ?
+                    insertDiagonally = false; 
+                }
+                else if(row != 0 && row != numRows-1 && vec[row+1][col-1] != ' ')
+                {
+                    vec[row][col] = s[col*row + row - spaceCount];
+                }
+                else
+                {
+                    vec[row][col] = ' '; ++spaceCount;
+                }
+/*                 if(row == 0 && vec[row][col-1] == ' ' && vec[row+1][col-1] != ' ')
+                { 
+                    vec[row][col] = s[col*row + row - spaceCount]; // ?
+                    insertDiagonally = false; 
+                } */
             }
             else
             {
                 if(row == numRows-1){ insertDiagonally = true; }
-                vec[row][col] = s[col*row + row];
+                vec[row][col] = s[col*row + row - spaceCount];
             }
         }
     }
