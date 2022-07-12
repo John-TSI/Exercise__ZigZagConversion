@@ -3,7 +3,6 @@
 #include<iostream>
 #include"../inc/solution.hpp"
 
-
 int main()
 {
 	Solution sol{};
